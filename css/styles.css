@@ -137,6 +137,38 @@ img, svg { display: block; max-width: 100%; }
     font-weight: 600;
 }
 
+/* ── Header right (toggle + share) ─────────────────────────── */
+.header__right {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+}
+
+/* ── Botón compartir ────────────────────────────────────────── */
+.btn-share {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-1);
+    padding: var(--sp-2) var(--sp-3);
+    background-color: #25D366;
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: var(--fs-sm);
+    font-family: var(--font-base);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    white-space: nowrap;
+}
+
+.btn-share:hover { background-color: #1ebe5d; }
+.btn-share:active { transform: scale(0.96); }
+
+@media (max-width: 400px) {
+    .btn-share span { display: none; }
+}
+
 .toggle-view__btn:not(.toggle-view__btn--active):hover {
     background-color: var(--color-bg-elevated);
     color: var(--color-text);

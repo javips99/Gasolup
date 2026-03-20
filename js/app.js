@@ -261,6 +261,43 @@ const App = (() => {
             UIModule.aplicarFiltros();
             MapModule.renderizarMarcadores(_gasolineras, _getCarburanteActivo());
         });
+
+        // Botón compartir
+        _on('btn-share', 'click', _compartir);
+    }
+
+    /**
+     * Comparte la app usando Web Share API si está disponible,
+     * o abre WhatsApp Web como alternativa.
+     */
+    async function _compartir() {
+        const url     = location.href.split('?')[0]; // URL limpia sin parámetros
+        const titulo  = 'GasoApp — Gasolineras cercanas';
+        const texto   = '¡Encuentra las gasolineras más baratas cerca de ti! 🚗⛽';
+
+        if (navigator.share) {
+            try {
+                await navigator.share({ title: titulo, text: texto, url });
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    console.warn('[GasoApp] Web Share falló, abriendo WhatsApp:', err.message);
+                    _abrirWhatsApp(texto, url);
+                }
+            }
+        } else {
+            _abrirWhatsApp(texto, url);
+        }
+    }
+
+    /**
+     * Abre WhatsApp Web con un mensaje predefinido + URL de la app.
+     *
+     * @param {string} texto
+     * @param {string} url
+     */
+    function _abrirWhatsApp(texto, url) {
+        const mensaje = encodeURIComponent(`${texto}\n${url}`);
+        window.open(`https://wa.me/?text=${mensaje}`, '_blank', 'noopener,noreferrer');
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────
