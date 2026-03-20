@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Consulta los precios de gasolineras cercanas a tu ubicación en tiempo real.">
+    <title>GasoApp — Gasolineras cercanas</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#9981;</text></svg>">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous" />
+    <!-- Estilos propios -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <header class="header">
+        <div class="header__logo">
+            <span class="header__icon" aria-hidden="true">&#9981;</span>
+            <h1 class="header__title">GasoApp</h1>
+        </div>
+        <nav class="toggle-view" aria-label="Cambiar vista">
+            <button id="btn-map" class="toggle-view__btn toggle-view__btn--active" aria-pressed="true">
+                🗺️ Mapa
+            </button>
+            <button id="btn-list" class="toggle-view__btn" aria-pressed="false">
+                📋 Listado
+            </button>
+        </nav>
+    </header>
+
+    <main class="main">
+
+        <!-- Panel de controles superiores -->
+        <section class="controls" aria-label="Controles de búsqueda">
+
+            <!-- Fallback cuando la geolocalización es denegada -->
+            <div id="geo-fallback" class="controls__fallback hidden">
+                <label for="input-localidad" class="visually-hidden">Buscar por localidad</label>
+                <input
+                    type="text"
+                    id="input-localidad"
+                    class="controls__input"
+                    placeholder="Introduce tu localidad (ej: Madrid)"
+                    autocomplete="address-level2"
+                    aria-label="Buscar por localidad"
+                    maxlength="100"
+                />
+                <button id="btn-buscar-localidad" class="controls__btn" type="button">
+                    Buscar
+                </button>
+            </div>
+
+            <!-- Slider de radio de búsqueda -->
+            <div class="controls__radio">
+                <label for="slider-radio" class="controls__label">
+                    Radio: <strong id="radio-valor">5</strong> km
+                </label>
+                <input
+                    type="range"
+                    id="slider-radio"
+                    class="controls__slider"
+                    min="1" max="25" value="5" step="1"
+                    aria-label="Radio de búsqueda en kilómetros"
+                    aria-valuemin="1" aria-valuemax="25" aria-valuenow="5"
+                />
+            </div>
+
+        </section>
+
+        <!-- Vista Mapa -->
+        <section id="vista-mapa" class="vista vista--mapa">
+            <div id="map" role="application" aria-label="Mapa interactivo de gasolineras cercanas"></div>
+        </section>
+
+        <!-- Vista Listado -->
+        <section id="vista-listado" class="vista vista--listado hidden" aria-label="Listado de gasolineras">
+
+            <div class="listado-controles">
+                <label for="input-busqueda" class="visually-hidden">Buscar gasolinera</label>
+                <input
+                    type="search"
+                    id="input-busqueda"
+                    class="listado-controles__search"
+                    placeholder="Buscar por nombre o dirección..."
+                    aria-label="Filtrar gasolineras por texto"
+                />
+                <label for="select-carburante" class="visually-hidden">Filtrar por carburante</label>
+                <select id="select-carburante" class="listado-controles__select" aria-label="Filtrar por carburante">
+                    <option value="todos">Todos los carburantes</option>
+                    <option value="g95">Gasolina 95</option>
+                    <option value="g98">Gasolina 98</option>
+                    <option value="diesel">Diésel A</option>
+                    <option value="dieselPlus">Diésel Premium</option>
+                </select>
+                <label for="select-orden" class="visually-hidden">Ordenar por</label>
+                <select id="select-orden" class="listado-controles__select" aria-label="Ordenar resultados">
+                    <option value="distancia">Ordenar: Distancia</option>
+                    <option value="precio">Ordenar: Precio</option>
+                    <option value="nombre">Ordenar: Nombre</option>
+                </select>
+            </div>
+
+            <p id="resultado-info" class="resultado-info" aria-live="polite" aria-atomic="true"></p>
+            <div id="listado-grid" class="listado-grid"></div>
+
+        </section>
+
+    </main>
+
+    <footer class="footer">
+        <p>
+            Datos: <a href="https://geoportalgasolineras.es" target="_blank" rel="noopener noreferrer">MITECO</a>
+            &nbsp;·&nbsp;
+            Mapa: <a href="https://leafletjs.com" target="_blank" rel="noopener noreferrer">Leaflet</a>
+            +
+            <a href="https://www.openstreetmap.org" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>
+        </p>
+    </footer>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
+
+    <!-- Módulos de la app (orden de carga obligatorio: utils → api → map → ui → app) -->
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/app.js"></script>
+
+</body>
+</html>

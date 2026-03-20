@@ -1,0 +1,534 @@
+/* ============================================================
+   GasoApp — Hoja de estilos principal
+   Tema: oscuro | Mobile-first | Breakpoints: 768px, 1024px
+   ============================================================ */
+
+/* ── Variables ─────────────────────────────────────────────── */
+:root {
+    /* Colores base */
+    --color-bg:          #0f1117;
+    --color-bg-surface:  #1a1d27;
+    --color-bg-elevated: #242736;
+    --color-border:      #2e3247;
+
+    /* Texto */
+    --color-text:        #f0f0f5;
+    --color-text-muted:  #8b8fa8;
+
+    /* Acento amarillo (gasolinera) */
+    --color-accent:      #f5c518;
+    --color-accent-dark: #c49b10;
+
+    /* Semáforo de precios */
+    --color-barato:      #22c55e;
+    --color-medio:       #f59e0b;
+    --color-caro:        #ef4444;
+
+    /* Tipografía */
+    --font-base:   'Segoe UI', system-ui, -apple-system, sans-serif;
+    --font-mono:   'Consolas', 'Courier New', monospace;
+    --fs-xs:       0.75rem;
+    --fs-sm:       0.875rem;
+    --fs-base:     1rem;
+    --fs-lg:       1.125rem;
+    --fs-xl:       1.25rem;
+
+    /* Espaciado */
+    --sp-1:  0.25rem;
+    --sp-2:  0.5rem;
+    --sp-3:  0.75rem;
+    --sp-4:  1rem;
+    --sp-6:  1.5rem;
+    --sp-8:  2rem;
+
+    /* Bordes / sombras */
+    --radius-sm:  6px;
+    --radius-md:  10px;
+    --radius-lg:  16px;
+    --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* ── Reset básico ───────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-base);
+    font-size: var(--fs-base);
+    line-height: 1.5;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+}
+
+a { color: var(--color-accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+img, svg { display: block; max-width: 100%; }
+
+/* Accesibilidad: clase para ocultar visualmente pero mantener en árbol de accesibilidad */
+.visually-hidden {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0,0,0,0);
+    white-space: nowrap; border: 0;
+}
+
+.hidden { display: none !important; }
+
+/* ── Header ────────────────────────────────────────────────── */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--sp-3) var(--sp-4);
+    background-color: var(--color-bg-surface);
+    border-bottom: 1px solid var(--color-border);
+    position: sticky;
+    top: 0;
+    z-index: 500;
+}
+
+.header__logo {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+}
+
+.header__icon { font-size: var(--fs-xl); }
+
+.header__title {
+    font-size: var(--fs-lg);
+    font-weight: 700;
+    color: var(--color-accent);
+    letter-spacing: -0.02em;
+}
+
+/* ── Toggle vista ───────────────────────────────────────────── */
+.toggle-view {
+    display: flex;
+    gap: var(--sp-1);
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--sp-1);
+}
+
+.toggle-view__btn {
+    padding: var(--sp-2) var(--sp-3);
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--color-text-muted);
+    font-size: var(--fs-sm);
+    font-family: var(--font-base);
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+    white-space: nowrap;
+}
+
+.toggle-view__btn--active {
+    background-color: var(--color-accent);
+    color: #0f1117;
+    font-weight: 600;
+}
+
+.toggle-view__btn:not(.toggle-view__btn--active):hover {
+    background-color: var(--color-bg-elevated);
+    color: var(--color-text);
+}
+
+/* ── Main ───────────────────────────────────────────────────── */
+.main { flex: 1; display: flex; flex-direction: column; }
+
+/* ── Controls ───────────────────────────────────────────────── */
+.controls {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-3);
+    padding: var(--sp-3) var(--sp-4);
+    background-color: var(--color-bg-surface);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.controls__fallback {
+    display: flex;
+    gap: var(--sp-2);
+}
+
+.controls__input {
+    flex: 1;
+    padding: var(--sp-2) var(--sp-3);
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    color: var(--color-text);
+    font-size: var(--fs-sm);
+    font-family: var(--font-base);
+    transition: border-color 0.2s;
+}
+
+.controls__input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+}
+
+.controls__btn {
+    padding: var(--sp-2) var(--sp-4);
+    background-color: var(--color-accent);
+    color: #0f1117;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-family: var(--font-base);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.controls__btn:hover { background-color: var(--color-accent-dark); }
+
+.controls__radio {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+}
+
+.controls__label {
+    font-size: var(--fs-sm);
+    color: var(--color-text-muted);
+    white-space: nowrap;
+    min-width: 80px;
+}
+
+.controls__label strong { color: var(--color-accent); }
+
+.controls__slider {
+    flex: 1;
+    height: 4px;
+    accent-color: var(--color-accent);
+    cursor: pointer;
+}
+
+/* ── Vistas ─────────────────────────────────────────────────── */
+.vista { flex: 1; }
+
+/* Vista mapa */
+.vista--mapa { display: flex; }
+
+#map {
+    width: 100%;
+    height: calc(100dvh - 130px); /* viewport menos header + controls */
+    min-height: 300px;
+    z-index: 1;
+}
+
+/* Vista listado */
+.vista--listado {
+    padding: var(--sp-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-4);
+}
+
+/* ── Controles listado ──────────────────────────────────────── */
+.listado-controles {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+}
+
+.listado-controles__search,
+.listado-controles__select {
+    width: 100%;
+    padding: var(--sp-2) var(--sp-3);
+    background-color: var(--color-bg-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    color: var(--color-text);
+    font-size: var(--fs-sm);
+    font-family: var(--font-base);
+    transition: border-color 0.2s;
+}
+
+.listado-controles__search:focus,
+.listado-controles__select:focus {
+    outline: none;
+    border-color: var(--color-accent);
+}
+
+.listado-controles__select option { background-color: var(--color-bg-surface); }
+
+/* ── Info resultado ─────────────────────────────────────────── */
+.resultado-info {
+    font-size: var(--fs-sm);
+    color: var(--color-text-muted);
+}
+
+/* ── Grid de tarjetas ───────────────────────────────────────── */
+.listado-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--sp-3);
+}
+
+/* ── Tarjeta gasolinera ─────────────────────────────────────── */
+.tarjeta {
+    background-color: var(--color-bg-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--sp-4);
+    box-shadow: var(--shadow-card);
+    /* Animación de entrada */
+    animation: fadeInUp 0.35s ease both;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.tarjeta__cabecera {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--sp-2);
+    margin-bottom: var(--sp-2);
+}
+
+.tarjeta__nombre {
+    font-size: var(--fs-base);
+    font-weight: 700;
+    color: var(--color-accent);
+    line-height: 1.2;
+}
+
+.tarjeta__distancia {
+    font-size: var(--fs-xs);
+    color: var(--color-text-muted);
+    background-color: var(--color-bg-elevated);
+    padding: var(--sp-1) var(--sp-2);
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+}
+
+.tarjeta__dir {
+    font-size: var(--fs-sm);
+    color: var(--color-text-muted);
+    margin-bottom: var(--sp-3);
+    line-height: 1.4;
+}
+
+.tarjeta__precios {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--sp-2);
+    margin-bottom: var(--sp-3);
+}
+
+.tarjeta__precio-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    background-color: var(--color-bg-elevated);
+    border-radius: var(--radius-sm);
+    padding: var(--sp-2);
+}
+
+.tarjeta__precio-label {
+    font-size: var(--fs-xs);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.tarjeta__precio-valor {
+    font-size: var(--fs-sm);
+    font-weight: 700;
+    font-family: var(--font-mono);
+}
+
+.tarjeta__sin-precio {
+    font-size: var(--fs-sm);
+    color: var(--color-text-muted);
+    font-style: italic;
+    grid-column: 1 / -1;
+}
+
+.tarjeta__horario {
+    font-size: var(--fs-xs);
+    color: var(--color-text-muted);
+}
+
+/* ── Semáforo de precios ────────────────────────────────────── */
+.precio--barato { color: var(--color-barato); }
+.precio--medio  { color: var(--color-medio); }
+.precio--caro   { color: var(--color-caro); }
+
+/* ── Skeleton loader ────────────────────────────────────────── */
+.tarjeta--skeleton {
+    animation: none;
+    pointer-events: none;
+}
+
+.skeleton {
+    background: linear-gradient(90deg,
+        var(--color-bg-elevated) 25%,
+        var(--color-border) 50%,
+        var(--color-bg-elevated) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: var(--radius-sm);
+}
+
+@keyframes shimmer {
+    from { background-position: 200% 0; }
+    to   { background-position: -200% 0; }
+}
+
+.skeleton--titulo  { height: 20px; width: 60%; margin-bottom: var(--sp-3); }
+.skeleton--texto   { height: 14px; width: 80%; margin-bottom: var(--sp-2); }
+.skeleton--corto   { width: 40%; }
+.skeleton--precios { height: 60px; margin-top: var(--sp-2); }
+
+/* ── Estado vacío / error ───────────────────────────────────── */
+.error-estado {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--sp-8) var(--sp-4);
+    text-align: center;
+    gap: var(--sp-2);
+}
+
+.error-estado__icono  { font-size: 2.5rem; }
+.error-estado__mensaje { font-size: var(--fs-lg); font-weight: 600; }
+.error-estado__ayuda   { font-size: var(--fs-sm); color: var(--color-text-muted); }
+
+/* ── Marcadores Leaflet personalizados ──────────────────────── */
+.marcador-usuario {
+    font-size: 1.6rem;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+}
+
+.marcador-gasolinera {
+    font-size: 1.4rem;
+    filter: drop-shadow(0 1px 3px rgba(0,0,0,0.5));
+    transition: transform 0.15s;
+}
+
+.marcador-gasolinera:hover { transform: scale(1.2); }
+
+/* Overrides Leaflet para tema oscuro */
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+    background-color: var(--color-bg-surface);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+}
+
+.leaflet-popup-content-wrapper { border-radius: var(--radius-md); }
+
+.leaflet-control-layers,
+.leaflet-control-zoom a {
+    background-color: var(--color-bg-surface) !important;
+    color: var(--color-text) !important;
+    border-color: var(--color-border) !important;
+}
+
+/* ── Popup del mapa ─────────────────────────────────────────── */
+.popup { min-width: 180px; }
+.popup__nombre { font-size: var(--fs-base); font-weight: 700; color: var(--color-accent); margin-bottom: var(--sp-1); }
+.popup__dir    { font-size: var(--fs-xs); color: var(--color-text-muted); margin-bottom: var(--sp-2); }
+.popup__distancia { font-size: var(--fs-xs); margin-bottom: var(--sp-2); }
+.popup__precios { width: 100%; border-collapse: collapse; font-size: var(--fs-xs); margin-bottom: var(--sp-2); }
+.popup__precios td { padding: 2px var(--sp-2) 2px 0; }
+.popup__horario { font-size: var(--fs-xs); color: var(--color-text-muted); }
+
+/* ── Toast de notificación ──────────────────────────────────── */
+.toast {
+    position: fixed;
+    top: var(--sp-4);
+    left: 50%;
+    transform: translateX(-50%) translateY(-10px);
+    padding: var(--sp-3) var(--sp-4);
+    border-radius: var(--radius-md);
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    color: #0f1117;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s, transform 0.25s;
+    z-index: 9999;
+    max-width: 90vw;
+    text-align: center;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+
+.toast--visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.toast--info  { background-color: var(--color-accent); }
+.toast--ok    { background-color: var(--color-barato); }
+.toast--warn  { background-color: var(--color-medio); }
+.toast--error { background-color: var(--color-caro); color: #fff; }
+
+/* ── Footer ─────────────────────────────────────────────────── */
+.footer {
+    padding: var(--sp-3) var(--sp-4);
+    text-align: center;
+    font-size: var(--fs-xs);
+    color: var(--color-text-muted);
+    border-top: 1px solid var(--color-border);
+    background-color: var(--color-bg-surface);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   BREAKPOINT 768px — Tablet
+   ══════════════════════════════════════════════════════════════ */
+@media (min-width: 768px) {
+
+    .controls {
+        flex-direction: row;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .controls__fallback { flex: 1; min-width: 280px; }
+    .controls__radio    { flex: 1; min-width: 200px; }
+
+    .listado-controles {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .listado-controles__search  { flex: 2; width: auto; }
+    .listado-controles__select  { flex: 1; width: auto; }
+
+    .listado-grid { grid-template-columns: repeat(2, 1fr); }
+
+    #map { height: calc(100dvh - 115px); }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   BREAKPOINT 1024px — Desktop
+   ══════════════════════════════════════════════════════════════ */
+@media (min-width: 1024px) {
+
+    .listado-grid { grid-template-columns: repeat(3, 1fr); }
+
+    .tarjeta__precios { grid-template-columns: repeat(4, 1fr); }
+
+    .vista--listado { padding: var(--sp-6) var(--sp-8); }
+
+    #map { height: calc(100dvh - 110px); }
+}
