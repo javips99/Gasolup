@@ -17,6 +17,8 @@ Aplicación web que muestra en tiempo real los precios de las gasolineras más c
 |---|---|
 | ![Vista mapa](assets/mapa.png) | ![Vista listado](assets/listado.png) |
 
+
+
 ---
 
 ## ✨ Funcionalidades
