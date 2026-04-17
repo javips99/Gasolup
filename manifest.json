@@ -2,7 +2,7 @@
     "name": "GasoLup — Gasolineras cercanas",
     "short_name": "GasoLup",
     "description": "Consulta los precios de gasolineras cercanas en tiempo real",
-    "start_url": "./index.html",
+    "start_url": "./",
     "display": "standalone",
     "background_color": "#0f1117",
     "theme_color": "#8DC63F",
@@ -18,7 +18,21 @@
             "src": "con_nombre_transparente.png",
             "sizes": "512x512",
             "type": "image/png",
-            "purpose": "any"
+            "purpose": "any maskable"
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "assets/mapa.png",
+            "type": "image/png",
+            "form_factor": "narrow",
+            "label": "Vista de mapa con gasolineras cercanas"
+        },
+        {
+            "src": "assets/listado.png",
+            "type": "image/png",
+            "form_factor": "narrow",
+            "label": "Listado de gasolineras con precios"
         }
     ]
 }

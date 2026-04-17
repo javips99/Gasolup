@@ -11,6 +11,8 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="GasoLup">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="solo_icono-transparente.png">
 
     <!-- Google Fonts: comparativa de tipografías -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -163,6 +165,88 @@
                 navigator.serviceWorker.register('sw.js').catch(() => {});
             });
         }
+    </script>
+
+    <!-- Banner de instalación PWA -->
+    <div id="pwa-banner" class="pwa-banner hidden" role="complementary" aria-label="Instalar aplicación">
+        <span class="pwa-banner__icono" aria-hidden="true">⛽</span>
+        <div class="pwa-banner__info">
+            <strong class="pwa-banner__titulo">Instala GasoLup</strong>
+            <span class="pwa-banner__subtitulo" id="pwa-subtitulo">Accede desde tu pantalla de inicio sin abrir el navegador</span>
+        </div>
+        <div class="pwa-banner__acciones">
+            <button id="pwa-btn-instalar" class="pwa-banner__btn pwa-banner__btn--ok">Instalar</button>
+            <button id="pwa-btn-cerrar" class="pwa-banner__btn pwa-banner__btn--x" aria-label="Cerrar">✕</button>
+        </div>
+        <!-- Instrucciones iOS (ocultas por defecto, se despliegan al pulsar Instalar) -->
+        <div id="pwa-ios-tip" class="pwa-ios-tip hidden" aria-live="polite">
+            <p>1. Pulsa el botón <strong>Compartir</strong> <span aria-hidden="true">⬆</span> en la barra inferior de Safari</p>
+            <p>2. Desplázate y toca <strong>«Añadir a pantalla de inicio»</strong></p>
+            <p>3. Pulsa <strong>«Añadir»</strong> en la esquina superior derecha</p>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            // No mostrar si la app ya está instalada como PWA
+            if (window.matchMedia('(display-mode: standalone)').matches) return;
+            if (window.navigator.standalone === true) return;
+            // No mostrar si el usuario ya descartó el banner
+            if (localStorage.getItem('gasolup_pwa_dismissed')) return;
+
+            const banner      = document.getElementById('pwa-banner');
+            const btnInstalar = document.getElementById('pwa-btn-instalar');
+            const btnCerrar   = document.getElementById('pwa-btn-cerrar');
+            const subtitulo   = document.getElementById('pwa-subtitulo');
+            const iosTip      = document.getElementById('pwa-ios-tip');
+
+            let deferredPrompt = null;
+
+            function ocultarBanner() {
+                banner.classList.add('hidden');
+                localStorage.setItem('gasolup_pwa_dismissed', '1');
+            }
+
+            // ── Android / Chrome: prompt nativo ──────────────────────────
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                banner.classList.remove('hidden');
+            });
+
+            btnInstalar.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    // Android: lanzar el diálogo nativo del navegador
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    deferredPrompt = null;
+                    ocultarBanner();
+                } else {
+                    // iOS: alternar las instrucciones paso a paso
+                    iosTip.classList.toggle('hidden');
+                    btnInstalar.textContent = iosTip.classList.contains('hidden')
+                        ? 'Cómo instalar' : 'Cerrar';
+                }
+            });
+
+            btnCerrar.addEventListener('click', ocultarBanner);
+
+            // Ocultar automáticamente tras instalar
+            window.addEventListener('appinstalled', ocultarBanner);
+
+            // ── iOS Safari: mostrar banner con instrucciones manuales ─────
+            // iPadOS 13+ ya no incluye "iPad" en el UA, se detecta por maxTouchPoints
+            const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+                          (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+            const esSafari = /safari/i.test(navigator.userAgent) &&
+                             !/chrome|chromium|crios|android/i.test(navigator.userAgent);
+
+            if (esIOS && esSafari) {
+                subtitulo.textContent = 'Toca "Cómo instalar" para ver los pasos en Safari';
+                btnInstalar.textContent = 'Cómo instalar';
+                banner.classList.remove('hidden');
+            }
+        })();
     </script>
 </body>
 </html>
