@@ -3,12 +3,13 @@
  * Estrategia: cache-first para assets estáticos, network-only para APIs.
  */
 
-const CACHE_NAME = 'gasolup-v24';
+const CACHE_NAME = 'gasolup-v25';
 
 const ASSETS_ESTATICOS = [
     './index.html',
     './manifest.json',
     './icon-pwa.svg',
+    './icon-512.png',
     './css/styles.css',
     './js/utils.js',
     './js/api.js',
