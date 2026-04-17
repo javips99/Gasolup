@@ -155,6 +155,54 @@ function escaparHTML(valor) {
 }
 
 /**
+ * Determina si una gasolinera está abierta en este momento según su horario.
+ * Soporta los formatos más comunes de la API MITECO:
+ *   "L-D: 24H", "L-V: 08:00-22:00; S-D: 09:00-21:00"
+ *
+ * @param {string} horario - Cadena de horario de la API
+ * @returns {boolean|null} true=abierto, false=cerrado, null=no determinado
+ *
+ * @example
+ * estaAbierto('L-D: 24H')                    // true
+ * estaAbierto('L-V: 08:00-20:00')            // true/false según hora actual
+ * estaAbierto('No disponible')               // null
+ */
+function estaAbierto(horario) {
+    if (!horario || horario.trim() === '' || horario === 'No disponible') return null;
+
+    const texto = horario.toUpperCase().trim();
+    if (texto.includes('24H')) return true;
+
+    const ahora     = new Date();
+    const diaJS     = ahora.getDay();
+    const diaN      = diaJS === 0 ? 7 : diaJS; // L=1, M=2, X=3, J=4, V=5, S=6, D=7
+    const minActual = ahora.getHours() * 60 + ahora.getMinutes();
+
+    const MAP_DIAS = { L: 1, M: 2, X: 3, J: 4, V: 5, S: 6, D: 7 };
+
+    const segmentos = texto.split(';').map(s => s.trim()).filter(Boolean);
+
+    for (const seg of segmentos) {
+        // Captura patrón: "L-V: 08:00-22:00" o "S: 09:00-21:00"
+        const m = seg.match(/^([A-Z])(?:-([A-Z]))?\s*[:\s]+(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})/);
+        if (!m) continue;
+
+        const dDesde = MAP_DIAS[m[1]];
+        const dHasta = m[2] ? MAP_DIAS[m[2]] : dDesde;
+        if (!dDesde || !dHasta) continue;
+        if (diaN < dDesde || diaN > dHasta) continue;
+
+        const inicio = parseInt(m[3]) * 60 + parseInt(m[4]);
+        let   fin    = parseInt(m[5]) * 60 + parseInt(m[6]);
+        if (fin === 0) fin = 24 * 60; // 00:00 al final = medianoche
+
+        if (minActual >= inicio && minActual <= fin) return true;
+    }
+
+    return false;
+}
+
+/**
  * Parsea una cadena de precio en formato español (coma decimal) a número flotante.
  * Devuelve null si la cadena está vacía o no es un número válido.
  *

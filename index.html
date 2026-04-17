@@ -4,8 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Consulta los precios de gasolineras cercanas a tu ubicación en tiempo real.">
-    <title>GasoApp — Gasolineras cercanas</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#9981;</text></svg>">
+    <title>GasoLup — Gasolineras cercanas</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#8DC63F">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="GasoLup">
+
+    <!-- Google Fonts: comparativa de tipografías -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,600;0,700;1,700;1,800&display=swap" rel="stylesheet">
 
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous" />
@@ -16,8 +26,8 @@
 
     <header class="header">
         <div class="header__logo">
-            <span class="header__icon" aria-hidden="true">&#9981;</span>
-            <h1 class="header__title">GasoApp</h1>
+            <img src="solo_icono-transparente.png"    alt="GasoLup" class="header__logo-img header__logo-img--icon">
+            <img src="con_nombre_transparente.png" alt="GasoLup" class="header__logo-img header__logo-img--full">
         </div>
         <nav class="toggle-view" aria-label="Cambiar vista">
             <button id="btn-map" class="toggle-view__btn toggle-view__btn--active" aria-pressed="true">
@@ -51,26 +61,43 @@
                 </button>
             </div>
 
-            <!-- Slider de radio de búsqueda -->
-            <div class="controls__radio">
-                <label for="slider-radio" class="controls__label">
-                    Radio: <strong id="radio-valor">5</strong> km
-                </label>
-                <input
-                    type="range"
-                    id="slider-radio"
-                    class="controls__slider"
-                    min="1" max="25" value="5" step="1"
-                    aria-label="Radio de búsqueda en kilómetros"
-                    aria-valuemin="1" aria-valuemax="25" aria-valuenow="5"
-                />
+            <!-- Fila de controles del mapa: carburante + radio (centrada con el ancho del mapa) -->
+            <div class="controls__mapa-row">
+
+                <div class="controls__carburante">
+                    <img src="solo_icono-transparente.png" alt="" class="controls__carburante-icon" aria-hidden="true">
+                    <label for="select-carburante-mapa" class="visually-hidden">Carburante</label>
+                    <select id="select-carburante-mapa" class="controls__select" aria-label="Carburante para el mapa y estadísticas">
+                        <option value="g95">Gasolina 95</option>
+                        <option value="g98">Gasolina 98</option>
+                        <option value="diesel">Diésel A</option>
+                        <option value="dieselPlus">Diésel Premium</option>
+                    </select>
+                </div>
+
+                <div class="controls__radio">
+                    <label for="slider-radio" class="controls__label">
+                        Radio: <strong id="radio-valor">5</strong> km
+                    </label>
+                    <input
+                        type="range"
+                        id="slider-radio"
+                        class="controls__slider"
+                        min="1" max="25" value="5" step="1"
+                        aria-label="Radio de búsqueda en kilómetros"
+                        aria-valuemin="1" aria-valuemax="25" aria-valuenow="5"
+                    />
+                </div>
+
             </div>
 
         </section>
 
         <!-- Vista Mapa -->
         <section id="vista-mapa" class="vista vista--mapa">
+            <aside class="mapa-stats" id="mapa-stats" aria-label="Estadísticas de la zona"></aside>
             <div id="map" role="application" aria-label="Mapa interactivo de gasolineras cercanas"></div>
+            <aside class="mapa-sidebar" id="mapa-sidebar" aria-label="Gasolineras más baratas"></aside>
         </section>
 
         <!-- Vista Listado -->
@@ -128,5 +155,14 @@
     <script src="js/ui.js"></script>
     <script src="js/app.js"></script>
 
+
+    <!-- Registro del Service Worker (PWA) -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(() => {});
+            });
+        }
+    </script>
 </body>
 </html>

@@ -66,7 +66,7 @@ const UIModule = (() => {
             dieselPlus: gasolineras.map(g => g.precios.dieselPlus).filter(Boolean),
         };
 
-        _renderizarTarjetas(gasolineras);
+        _renderizarTarjetas(gasolineras, 'todos');
     }
 
     /**
@@ -98,7 +98,7 @@ const UIModule = (() => {
             resultado = resultado.filter(g => g.precios[carburante] !== null);
         }
 
-        _renderizarTarjetas(ordenarPor(resultado, criterio, carburante));
+        _renderizarTarjetas(ordenarPor(resultado, criterio, carburante), carburante);
     }
 
     /**
@@ -176,7 +176,7 @@ const UIModule = (() => {
      *
      * @param {Object[]} gasolineras
      */
-    function _renderizarTarjetas(gasolineras) {
+    function _renderizarTarjetas(gasolineras, filtroCarburante = 'todos') {
         const grid = _grid();
         const info = _info();
         if (!grid || !info) return;
@@ -189,8 +189,13 @@ const UIModule = (() => {
         const n = gasolineras.length;
         info.textContent = `${n} gasolinera${n !== 1 ? 's' : ''} encontrada${n !== 1 ? 's' : ''}`;
 
+        // Precio mínimo para el badge "Más barata"
+        const carburanteActivo = filtroCarburante !== 'todos' ? filtroCarburante : 'g95';
+        const preciosValidos = gasolineras.map(g => g.precios[carburanteActivo]).filter(p => p !== null);
+        const precioMinimo = preciosValidos.length > 0 ? Math.min(...preciosValidos) : null;
+
         grid.innerHTML = gasolineras
-            .map((g, i) => _crearTarjetaHTML(g, i))
+            .map((g, i) => _crearTarjetaHTML(g, i, precioMinimo, carburanteActivo, filtroCarburante))
             .join('');
     }
 
@@ -202,8 +207,8 @@ const UIModule = (() => {
      * @param {number} indice - Posición en el array (para delay de animación CSS)
      * @returns {string} HTML de la tarjeta
      */
-    function _crearTarjetaHTML(gasolinera, indice) {
-        const { nombre, direccion, localidad, horario, precios, distanciaKm } = gasolinera;
+    function _crearTarjetaHTML(gasolinera, indice, precioMinimo, carburanteActivo, filtroCarburante) {
+        const { nombre, direccion, localidad, horario, precios, distanciaKm, latitud, longitud } = gasolinera;
 
         const COMBUSTIBLES = [
             { key: 'g95',        label: 'G95' },
@@ -212,7 +217,12 @@ const UIModule = (() => {
             { key: 'dieselPlus', label: 'D+' },
         ];
 
-        const itemsPrecios = COMBUSTIBLES
+        // Si hay un carburante seleccionado (no "todos"), mostrar solo ese
+        const combustiblesVisibles = filtroCarburante !== 'todos'
+            ? COMBUSTIBLES.filter(c => c.key === filtroCarburante)
+            : COMBUSTIBLES;
+
+        const itemsPrecios = combustiblesVisibles
             .filter(({ key }) => precios[key] !== null)
             .map(({ key, label }) => {
                 const clase = colorPrecio(precios[key], _preciosPorCombustible[key]);
@@ -228,6 +238,27 @@ const UIModule = (() => {
         const contenidoPrecios = itemsPrecios ||
             '<p class="tarjeta__sin-precio">Sin datos de precio</p>';
 
+        // Badge: más barata del listado actual
+        const esMasBarata = precioMinimo !== null && precios[carburanteActivo] === precioMinimo;
+        const badgeMasBarata = esMasBarata
+            ? '<span class="tarjeta__badge tarjeta__badge--barata">💚 Más barata</span>'
+            : '';
+
+        // Badge: abierto / cerrado ahora mismo
+        const estado = estaAbierto(horario);
+        const badgeEstado = estado === true
+            ? '<span class="tarjeta__badge tarjeta__badge--abierto">🟢 Abierto</span>'
+            : estado === false
+            ? '<span class="tarjeta__badge tarjeta__badge--cerrado">🔴 Cerrado</span>'
+            : '';
+
+        const badges = (badgeMasBarata || badgeEstado)
+            ? `<div class="tarjeta__badges">${badgeMasBarata}${badgeEstado}</div>`
+            : '';
+
+        // Botón Google Maps
+        const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${latitud},${longitud}`;
+
         return `
             <article class="tarjeta" style="animation-delay:${indice * 40}ms"
                      aria-label="Gasolinera ${nombre}">
@@ -235,12 +266,19 @@ const UIModule = (() => {
                     <h2 class="tarjeta__nombre">${nombre}</h2>
                     <span class="tarjeta__distancia">📍 ${formatearDistancia(distanciaKm)}</span>
                 </div>
+                ${badges}
                 <p class="tarjeta__dir">
                     ${direccion}<br>
                     <small>${localidad}</small>
                 </p>
                 <div class="tarjeta__precios">${contenidoPrecios}</div>
-                <p class="tarjeta__horario">🕐 ${horario}</p>
+                <div class="tarjeta__footer">
+                    <p class="tarjeta__horario">🕐 ${horario}</p>
+                    <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer"
+                       class="tarjeta__maps-btn" aria-label="Ver ${nombre} en Google Maps">
+                        🗺️ Ver en Maps
+                    </a>
+                </div>
             </article>
         `;
     }
@@ -251,7 +289,118 @@ const UIModule = (() => {
         if (info) info.textContent = '';
     }
 
+    // ── Panel lateral del mapa ───────────────────────────────────────────────
+
+    /** Etiquetas legibles por carburante */
+    const FUEL_LABELS = { g95: 'G95', g98: 'G98', diesel: 'Diésel A', dieselPlus: 'D+' };
+
+    /**
+     * Actualiza los dos paneles laterales del mapa (estadísticas + Top 5).
+     * Solo tienen efecto visual a partir de 1100px (CSS los oculta en móvil/tablet).
+     *
+     * @param {Object[]} gasolineras - Array completo de gasolineras normalizadas
+     * @param {string}   carburante  - Clave del carburante activo: 'g95'|'g98'|'diesel'|'dieselPlus'
+     */
+    function renderizarPanelMapa(gasolineras, carburante = 'g95') {
+        _renderizarStats(gasolineras, carburante);
+        _renderizarSidebar(gasolineras, carburante);
+    }
+
+    /**
+     * Rellena el panel izquierdo con 4 tarjetas de estadísticas:
+     * nº estaciones, precio medio del carburante activo, más económica, más cercana.
+     */
+    function _renderizarStats(gasolineras, carburante) {
+        const panel = document.getElementById('mapa-stats');
+        if (!panel) return;
+
+        if (gasolineras.length === 0) { panel.innerHTML = ''; return; }
+
+        const label = FUEL_LABELS[carburante] || carburante.toUpperCase();
+        const precios = gasolineras.map(g => g.precios[carburante]).filter(Boolean);
+        const precioMedio = precios.length > 0
+            ? (precios.reduce((a, b) => a + b, 0) / precios.length).toFixed(3)
+            : null;
+
+        const masEconomica = precios.length > 0
+            ? [...gasolineras].filter(g => g.precios[carburante]).sort((a, b) => a.precios[carburante] - b.precios[carburante])[0]
+            : null;
+
+        const masCercana = [...gasolineras].sort((a, b) => a.distanciaKm - b.distanciaKm)[0];
+
+        panel.innerHTML = `
+            <div class="stat-card">
+                <span class="stat-card__icono">⛽</span>
+                <span class="stat-card__label">Estaciones</span>
+                <span class="stat-card__valor">${gasolineras.length}</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-card__icono">💰</span>
+                <span class="stat-card__label">Precio medio ${label}</span>
+                <span class="stat-card__valor">${precioMedio ? precioMedio + ' €' : '—'}</span>
+            </div>
+            ${masEconomica ? `
+            <div class="stat-card">
+                <span class="stat-card__icono">💚</span>
+                <span class="stat-card__label">Más económica ${label}</span>
+                <span class="stat-card__valor">${formatearPrecio(masEconomica.precios[carburante])}</span>
+                <span class="stat-card__sub">${escaparHTML(masEconomica.nombre)}</span>
+            </div>` : ''}
+            <div class="stat-card">
+                <span class="stat-card__icono">📍</span>
+                <span class="stat-card__label">Más cercana</span>
+                <span class="stat-card__valor">${formatearDistancia(masCercana.distanciaKm)}</span>
+                <span class="stat-card__sub">${escaparHTML(masCercana.nombre)}</span>
+            </div>
+        `;
+    }
+
+    /**
+     * Rellena el panel derecho con el Top 5 más baratas del carburante activo.
+     * Al hacer clic en un item, vuela al marcador en el mapa.
+     */
+    function _renderizarSidebar(gasolineras, carburante) {
+        const panel = document.getElementById('mapa-sidebar');
+        if (!panel) return;
+
+        if (gasolineras.length === 0) { panel.innerHTML = ''; return; }
+
+        const label = FUEL_LABELS[carburante] || carburante.toUpperCase();
+
+        const top5 = [...gasolineras]
+            .filter(g => g.precios[carburante])
+            .sort((a, b) => a.precios[carburante] - b.precios[carburante])
+            .slice(0, 5);
+
+        if (top5.length === 0) { panel.innerHTML = ''; return; }
+
+        panel.innerHTML = `
+            <div class="sidebar-cabecera">
+                <img src="solo_icono-transparente.png" alt="" class="sidebar-icono" aria-hidden="true">
+                <span class="sidebar-titulo">Top 5 · ${label}</span>
+            </div>
+            ${top5.map(g => `
+                <div class="top5-item"
+                     data-lat="${g.latitud}"
+                     data-lon="${g.longitud}"
+                     title="${escaparHTML(g.nombre)}">
+                    <span class="top5-item__nombre">${escaparHTML(g.nombre)}</span>
+                    <span class="top5-item__precio">${formatearPrecio(g.precios[carburante])} <small>${label}</small></span>
+                    <span class="top5-item__dist">📍 ${formatearDistancia(g.distanciaKm)}</span>
+                </div>
+            `).join('')}
+        `;
+
+        // Clic: cambiar a vista mapa y volar al marcador
+        panel.querySelectorAll('.top5-item').forEach(el => {
+            el.addEventListener('click', () => {
+                document.getElementById('btn-map')?.click();
+                MapModule.centrarEn(parseFloat(el.dataset.lat), parseFloat(el.dataset.lon), 15);
+            });
+        });
+    }
+
     // ── Interfaz pública del módulo ──────────────────────────────────────────
-    return { mostrarSkeleton, renderizarListado, aplicarFiltros, ordenarPor, mostrarError, mostrarVacio };
+    return { mostrarSkeleton, renderizarListado, aplicarFiltros, ordenarPor, mostrarError, mostrarVacio, renderizarPanelMapa };
 
 })();

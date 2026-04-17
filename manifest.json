@@ -1,0 +1,24 @@
+{
+    "name": "GasoLup — Gasolineras cercanas",
+    "short_name": "GasoLup",
+    "description": "Consulta los precios de gasolineras cercanas en tiempo real",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#0f1117",
+    "theme_color": "#8DC63F",
+    "orientation": "any",
+    "icons": [
+        {
+            "src": "solo_icono-transparente.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "con_nombre_transparente.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        }
+    ]
+}
